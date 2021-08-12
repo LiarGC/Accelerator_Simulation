@@ -35,6 +35,8 @@ int main()
     s1.SetTheta(0.7853981);
     s1.Set_g(2.29581);
     s1.GetTransferMatrix().show();
+
+    printf("hello");
     //*/
     return 0;
 }
