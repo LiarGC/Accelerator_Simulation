@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "mkl.h"
 
 using namespace std;
@@ -12,8 +11,8 @@ public:
 	virtual ~Matrix();
 	void InputMatrixBuffer(double* buffer, unsigned int sizeof_buffer);
 	void SetMartrixElement(unsigned int row,unsigned int col, double num);
-	void col_stack(const Matrix& m);
-	void row_stack(const Matrix& m);
+	void col_stack(const Matrix& m);// not finished
+	void row_stack(const Matrix& m);// not finished
 	void show();
 
 
