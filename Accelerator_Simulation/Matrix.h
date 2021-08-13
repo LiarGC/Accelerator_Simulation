@@ -12,7 +12,7 @@ public:
 	void InputMatrixBuffer(double* buffer, unsigned int sizeof_buffer);
 	void SetMartrixElement(unsigned int row,unsigned int col, double num);
 	void col_stack(const Matrix& m);// not finished
-	void row_stack(const Matrix& m);// not finished
+	void row_stack(const Matrix& m);
 	void show();
 
 
@@ -20,6 +20,9 @@ public:
 	Matrix operator+(const Matrix& m);
 	Matrix operator-(const Matrix& m);
 	Matrix operator*(const Matrix& m);
+
+	Matrix Transpose();
+	Matrix Inverse();
 private:
 	unsigned int row, col=2;
 	double* matrix_buffer;

@@ -34,10 +34,10 @@ Matrix::~Matrix()
 
 void Matrix::InputMatrixBuffer(double* buffer, unsigned int sizeof_buffer)
 {
-	for (unsigned int i = 0; i < row; i++) {
-		for (unsigned int j = 0; j < col; j++) {
-			if (sizeof_buffer > i * col + j) matrix_buffer[i * col + j] = buffer[i * col + j];
-		}
+	unsigned int length = sizeof_buffer / sizeof(double);
+	for (unsigned int i = 0; i < row * col; i++) {
+		if (i < length) matrix_buffer[i] = buffer[i];
+		else matrix_buffer[i] = 0;
 	}
 }
 
@@ -56,10 +56,19 @@ void Matrix::col_stack(const Matrix& m)
 		printf("col_stack falled!\nDifferent row!");
 		return;
 	}
+	double* temp;
+	temp = (double*)mkl_malloc(row * (col + m.col) * sizeof(double), 64);
 	for (unsigned int i = 0; i < this->row; i++) {
-		//matrix_buffer[i].insert(matrix_buffer[i].end(), m.matrix_buffer[i].begin(), m.matrix_buffer[i].end());
+		for(unsigned int j = 0; j < this->col; j++) {
+			temp[(this->col + m.col) * i + j] = this->matrix_buffer[col * i + j];
+		}
+		for (unsigned int j = 0; j < m.col; j++) {
+			temp[this->col + (this->col + m.col) * i + j] = m.matrix_buffer[m.col * i + j];
+		}
 	}
 	this->col += m.col;
+	mkl_free(matrix_buffer);
+	matrix_buffer = temp;
 }
 
 void Matrix::row_stack(const Matrix& m)
@@ -68,10 +77,13 @@ void Matrix::row_stack(const Matrix& m)
 		printf("row_stack falled!\nDifferent col!");
 		return;
 	}
-	for (unsigned int i = 0; i < m.row; i++) {
-		//matrix_buffer.push_back(m.matrix_buffer[i]);
-	}
+	double* temp;
+	temp = (double*)mkl_malloc(col * (row + m.row) * sizeof(double), 64);
+	memcpy(temp, this->matrix_buffer, row * col * sizeof(double));
+	memcpy(temp + row * col, m.matrix_buffer, m.row * m.col * sizeof(double));
 	this->row += m.row;
+	mkl_free(matrix_buffer);
+	matrix_buffer = temp;
 }
 
 void Matrix::show()
@@ -105,12 +117,8 @@ Matrix Matrix::operator+(const Matrix& m)
 		printf("'+' Error! Different row or col\n");
 		return NULL;
 	}
-	Matrix temp(this->row, this->col);
-	for (unsigned int i = 0; i < this->row; i++) {
-		for (unsigned int j = 0; j < this->col; j++) {
-			temp.matrix_buffer[i * col + j] = this->matrix_buffer[i * col + j] + m.matrix_buffer[i * col + j];
-		}
-	}
+	Matrix temp(m);
+	cblas_daxpby(row*col, 1, this->matrix_buffer, 1, 1, temp.matrix_buffer, 1);
 	return temp;
 }
 
@@ -120,12 +128,8 @@ Matrix Matrix::operator-(const Matrix& m)
 		printf("'-' Error! Different row or col\n");
 		return NULL;
 	}
-	Matrix temp(this->row, this->col);
-	for (unsigned int i = 0; i < this->row; i++) {
-		for (unsigned int j = 0; j < this->col; j++) {
-			temp.matrix_buffer[i * col + j] = this->matrix_buffer[i * col + j] - m.matrix_buffer[i * col + j];
-		}
-	}
+	Matrix temp(m);
+	cblas_daxpby(row * col, 1, this->matrix_buffer, 1, -1, temp.matrix_buffer, 1);
 	return temp;
 }
 
