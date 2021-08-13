@@ -11,3 +11,4 @@
 >>https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl/download.html?operatingsystem=window&distributions=webdownload&options=offline
 
 >>安装完成后visual studio中会出现相关的选项，如下图选择
+![Image text](https://github.com/LiarGC/Accelerator_Simulation/blob/master/image/image1.png)

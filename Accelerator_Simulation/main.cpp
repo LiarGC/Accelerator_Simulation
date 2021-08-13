@@ -100,6 +100,6 @@ int main()
 
     printf(" Example completed. \n\n");
 
-    system("pause");
+    
     return 0;
 }
