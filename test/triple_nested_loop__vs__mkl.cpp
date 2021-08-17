@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Matrix.h"
 #include "mkl.h"
 
 int main()
@@ -74,7 +73,8 @@ int main()
     printf(" == Matrix multiplication using triple nested loop completed == \n"
         " == at %.5f milliseconds == \n\n", (s_elapsed * 1000));
 
-    printf(" Measuring performance of matrix product using mkl \n\n");
+    printf(" Measuring performance of matrix product using mkl_Sequence \n\n");
+    mkl_set_num_threads(1);
     s_initial = dsecnd();
     for (r = 0; r < LOOP_COUNT; r++) {
         cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
@@ -82,8 +82,21 @@ int main()
     }
     s_elapsed = (dsecnd() - s_initial) / LOOP_COUNT;
 
-    printf(" == Matrix multiplication using mkl completed == \n"
+    printf(" == Matrix multiplication using mkl_Sequence completed == \n"
         " == at %.5f milliseconds == \n\n", (s_elapsed * 1000));
+
+    printf(" Measuring performance of matrix product using mkl_Parallel \n\n");
+    mkl_set_num_threads(mkl_get_max_threads());
+    s_initial = dsecnd();
+    for (r = 0; r < LOOP_COUNT; r++) {
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+            m, n, p, alpha, A, p, B, n, beta, C, n);
+    }
+    s_elapsed = (dsecnd() - s_initial) / LOOP_COUNT;
+
+    printf(" == Matrix multiplication using mkl_Parallel completed == \n"
+        " == at %.5f milliseconds == \n\n", (s_elapsed * 1000));
+
 
     printf(" Deallocating memory \n\n");
     mkl_free(A);
