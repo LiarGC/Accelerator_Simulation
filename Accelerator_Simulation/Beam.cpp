@@ -2,15 +2,19 @@
 #include "PhysicalParameter.h"
 #include <iostream>
 
-Beam::Beam(Particle particle)
+Beam::Beam(const Particle& particle)
 {
-	p_IdealParticle = new Particle(particle);
+	p_IdealParticle = (Particle*)ClassFactory::getInstance().getClassByName(particle.GetClassName());
 	p_IdealParticle->SetEk(1 * GeV);
 }
 
 Beam::~Beam()
 {
 	delete p_IdealParticle;
+	for (unsigned int i = 0; i < v_p_particles.size(); i++)
+	{
+		delete v_p_particles[i];
+	}
 }
 
 void Beam::GenerateParticlesInNormalDistribution(unsigned int num, double sigma)
@@ -25,10 +29,10 @@ void Beam::GenerateParticlesInNormalDistribution(unsigned int num, double sigma)
 		double y = p_IdealParticle->Get_y() + gauss_distribution(generator);
 		double Momentum = (1 + momentum_distribution(generator)) * p_IdealParticle->GetMomentum();
 
-		Particle particle(*p_IdealParticle);
-		particle.Particle::Particle(x, y);
-		particle.SetMomentum(Momentum);
+		Particle* temp = (Particle*)ClassFactory::getInstance().getClassByName(p_IdealParticle->GetClassName());
+		temp->Particle::Particle(x, y);
+		temp->SetMomentum(Momentum);
 
-		v_particles.push_back(particle);
+		v_p_particles.push_back(temp);
 	}
 }
