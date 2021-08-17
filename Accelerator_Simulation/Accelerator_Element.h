@@ -61,7 +61,3 @@ private:
 
 	double k_Mquad;// -g/(B_rho):m^-2
 };
-
-class six :public Accelerator_Element {
-
-};

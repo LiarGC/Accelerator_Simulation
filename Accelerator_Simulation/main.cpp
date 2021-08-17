@@ -1,26 +1,16 @@
 #include <iostream>
-#include "Particle.h"
-#include "Beam.h"
-
+#include "Matrix.h"
+using namespace std;
 int main()
 {
-    Electron e1;
-    //cout << e1.GetClassName() << endl;
-
-    /*
-    Particle* temp = (Particle*)ClassFactory::getInstance().getClassByName(e1.GetClassName());
-    cout << temp->GetClassName() << endl;
-    delete temp;
-    */
-
-    Proton p1;
-    //cout << p1.GetClassName() << endl;
-
-    /*
-    temp = (Particle*)ClassFactory::getInstance().getClassByName(p1.GetClassName());
-    cout << temp->GetClassName() << endl;
-    delete temp;
-    */
+    Matrix m1(2,2);
+    double buffer[4] = {
+        0.,1.,2.,3.
+    };
+    m1.InputMatrixBuffer(buffer, sizeof(buffer));
+    m1.show();
+    m1.Transpose().show();
+    m1.col_stack(m1).col_stack(m1).show();
 
     system("pause");
     return 0;
