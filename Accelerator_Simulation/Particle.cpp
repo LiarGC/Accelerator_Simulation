@@ -4,6 +4,7 @@
 
 Particle::Particle()
 {
+	x = 0; y = 0; s = 0;
 }
 
 Particle::Particle(double x,double y)
@@ -37,6 +38,11 @@ void Particle::SetMomentum(double P)
 void Particle::SetB_rho(double B_rho)
 {
 	SetMomentum(B_rho * Charge);
+}
+
+void Particle::SetCharge(double Charge)
+{
+	this->Charge = Charge;
 }
 
 double Particle::GetGamma()
@@ -104,39 +110,60 @@ double Particle::Get_s()
 	return s;
 }
 
-void Particle::SetRest_mass(double rest_mass)
+void Particle::SubInitial()
 {
-	this->rest_mass = rest_mass;//kg
+	this->SetRestMass();
 	E0 = rest_mass * c * c;//J
+	this->SetInitialCharge();
 }
 
-void Particle::SetCharge(double Charge)
+string Particle::GetClassName() const
 {
-	this->Charge = Charge;
+	return typeid(*this).name();
 }
 
 Electron::Electron()
 {
-	SetRest_mass(9.10956E-31);
-	SetCharge(-1 * e);
+	SubInitial();
 }
 
 Electron::Electron(double x, double y)
 	:Particle(x, y)
 {
-	SetRest_mass(9.10956E-31);
+	SubInitial();
+}
+
+void Electron::SetRestMass()
+{
+	rest_mass = 9.10956E-31;
+}
+
+void Electron::SetInitialCharge()
+{
 	SetCharge(-1 * e);
 }
 
+REGISTER_cpp(Electron);
+
 Proton::Proton()
 {
-	SetRest_mass(1.6726231E-27);
-	SetCharge(1 * e);
+	SubInitial();
 }
 
 Proton::Proton(double x, double y)
 	:Particle(x, y)
 {
-	SetRest_mass(1.6726231E-27);
+	SubInitial();
+}
+
+void Proton::SetRestMass()
+{
+	rest_mass = 1.6726231E-27;
+}
+
+void Proton::SetInitialCharge()
+{
 	SetCharge(1 * e);
 }
+
+REGISTER_cpp(Proton);

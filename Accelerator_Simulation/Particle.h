@@ -1,5 +1,8 @@
 #pragma once
 
+#include "cpp_Reflex.h"
+#include <string>
+
 class Particle
 {
 public:
@@ -9,6 +12,7 @@ public:
 	void SetE_totall(double E0);
 	void SetMomentum(double P);
 	void SetB_rho(double B_rho);
+	void SetCharge(double Charge);// C
 
 	double GetGamma();
 	double GetBeta();
@@ -25,11 +29,16 @@ public:
 	double Get_y();//m
 	double Get_s();//m
 
+	virtual void SubInitial();
+	virtual void SetRestMass() = 0;
+	virtual void SetInitialCharge() = 0;
+
+	virtual string GetClassName() const;//virtual 是为了this指针能够指向子类
+
 protected:
-	void SetRest_mass(double rest_mass);// kg
-	void SetCharge(double Charge);// C
+	double rest_mass;
 private:
-	double relativistic_mass, rest_mass;// kg
+	double relativistic_mass;// kg
 	double beta, gamma;
 	double velocity;// m/s
 	double Ek, E0;// J
@@ -40,16 +49,24 @@ private:
 	double x, y, s;
 };
 
-class Electron :public Particle 
+class Electron :public Particle
 {
 public:
 	Electron();
 	Electron(double x, double y);
+private:
+	virtual void SetRestMass();
+	virtual void SetInitialCharge();
 };
+REGISTER_h(Electron);
 
 class Proton :public Particle
 {
 public:
 	Proton();
 	Proton(double x, double y);
+private:
+	virtual void SetRestMass();
+	virtual void SetInitialCharge();
 };
+REGISTER_h(Proton);
