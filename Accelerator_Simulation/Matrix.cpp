@@ -50,40 +50,26 @@ void Matrix::SetMartrixElement(unsigned int row, unsigned int col, double num)
 	matrix_buffer[row * this->col + col] = num;
 }
 
-void Matrix::col_stack(const Matrix& m)
+Matrix Matrix::col_stack(const Matrix& m) const
 {
 	if (this->row != m.row) {
-		printf("col_stack falled!\nDifferent row!");
-		return;
+		printf("col_stack falled!\nDifferent row!\n");
+		return NULL;
 	}
-	double* temp;
-	temp = (double*)mkl_malloc(row * (col + m.col) * sizeof(double), 64);
-	for (unsigned int i = 0; i < this->row; i++) {
-		for(unsigned int j = 0; j < this->col; j++) {
-			temp[(this->col + m.col) * i + j] = this->matrix_buffer[col * i + j];
-		}
-		for (unsigned int j = 0; j < m.col; j++) {
-			temp[this->col + (this->col + m.col) * i + j] = m.matrix_buffer[m.col * i + j];
-		}
-	}
-	this->col += m.col;
-	mkl_free(matrix_buffer);
-	matrix_buffer = temp;
+	return (this->Transpose().row_stack(m.Transpose())).Transpose();
+	
 }
 
-void Matrix::row_stack(const Matrix& m)
+Matrix Matrix::row_stack(const Matrix& m) const
 {
 	if (this->col != m.col) {
 		printf("row_stack falled!\nDifferent col!");
-		return;
+		return NULL;
 	}
-	double* temp;
-	temp = (double*)mkl_malloc(col * (row + m.row) * sizeof(double), 64);
-	memcpy(temp, this->matrix_buffer, row * col * sizeof(double));
-	memcpy(temp + row * col, m.matrix_buffer, m.row * m.col * sizeof(double));
-	this->row += m.row;
-	mkl_free(matrix_buffer);
-	matrix_buffer = temp;
+	Matrix temp(row + m.row, col);
+	memcpy(temp.matrix_buffer, this->matrix_buffer, row * col * sizeof(double));
+	memcpy(temp.matrix_buffer + row * col, m.matrix_buffer, m.row * m.col * sizeof(double));
+	return temp;
 }
 
 void Matrix::show()
@@ -143,5 +129,27 @@ Matrix Matrix::operator*(const Matrix& m)
 	mkl_set_num_threads(mkl_get_max_threads());
 	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
 		this->row, m.col, this->col, 1.0, this->matrix_buffer, this->col, m.matrix_buffer, m.col, 0.0, temp.matrix_buffer, m.col);
+	return temp;
+}
+
+Matrix Matrix::operator*(const double& scale)
+{
+	Matrix temp(*this);
+	cblas_dscal(row * col, scale, temp.matrix_buffer, 1);
+	return temp;
+}
+
+Matrix operator*(const double& scale, const Matrix& m)
+{
+	Matrix temp(m);
+	return temp * scale;
+}
+
+Matrix Matrix::Transpose() const
+{
+	Matrix temp(*this);
+	MKL_Dimatcopy('R', 'T', row, col, 1, temp.matrix_buffer, col, row);
+	unsigned int temp1 = temp.row;
+	temp.row = temp.col; temp.col = temp1;
 	return temp;
 }
