@@ -1,22 +1,27 @@
 #include <iostream>
-#include "Matrix.h"
-#include "mkl.h"
+#include "Particle.h"
+#include "Beam.h"
 
 int main()
 {
-    Matrix m1(2, 2),m2(2,2);
-    double buffer[4] = {
-        1.0,    2.0,
-        3.0,    4.0
-    };
-    m1.InputMatrixBuffer(buffer, sizeof(buffer));
-    m2.InputMatrixBuffer(buffer, sizeof(buffer));
+    Electron e1;
+    //cout << e1.GetClassName() << endl;
 
-    m1.show();
-    m2.show();
+    /*
+    Particle* temp = (Particle*)ClassFactory::getInstance().getClassByName(e1.GetClassName());
+    cout << temp->GetClassName() << endl;
+    delete temp;
+    */
 
-    //m1.row_stack(m2);
-    (m1 + m2).show();
+    Proton p1;
+    //cout << p1.GetClassName() << endl;
 
+    /*
+    temp = (Particle*)ClassFactory::getInstance().getClassByName(p1.GetClassName());
+    cout << temp->GetClassName() << endl;
+    delete temp;
+    */
+
+    system("pause");
     return 0;
 }
