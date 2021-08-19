@@ -11,6 +11,7 @@ public:
 	virtual ~Matrix();
 	void InputMatrixBuffer(double* buffer, unsigned int sizeof_buffer);
 	void SetMartrixElement(unsigned int row,unsigned int col, double num);
+	void Scale(double scale);
 	
 	Matrix col_stack(const Matrix& m) const;
 	Matrix row_stack(const Matrix& m) const;
@@ -21,11 +22,15 @@ public:
 
 
 	void operator=(const Matrix& m);
-	Matrix operator+(const Matrix& m);
-	Matrix operator-(const Matrix& m);
-	Matrix operator*(const Matrix& m);
-	Matrix operator*(const double& scale);//只能 matrix * scale
+	Matrix operator+(const Matrix& m) const;
+	Matrix operator-(const Matrix& m) const;
+	Matrix operator*(const Matrix& m) const;
+	Matrix operator*(const double& scale) const;//只能 matrix * scale
 	friend Matrix operator*(const double& scale, const Matrix& m);//scale * matrix 的实现
+
+	void operator+=(const Matrix& m);
+	void operator-=(const Matrix& m);
+	void operator*=(const double& scale);
 	
 private:
 	unsigned int row, col=2;

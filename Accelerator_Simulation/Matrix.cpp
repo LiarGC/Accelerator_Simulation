@@ -35,10 +35,8 @@ Matrix::~Matrix()
 void Matrix::InputMatrixBuffer(double* buffer, unsigned int sizeof_buffer)
 {
 	unsigned int length = sizeof_buffer / sizeof(double);
-	for (unsigned int i = 0; i < row * col; i++) {
-		if (i < length) matrix_buffer[i] = buffer[i];
-		else matrix_buffer[i] = 0;
-	}
+	if (row * col < length) memcpy(matrix_buffer, buffer, row * col * sizeof(double));
+	else memcpy(matrix_buffer, buffer, length * sizeof(double));
 }
 
 void Matrix::SetMartrixElement(unsigned int row, unsigned int col, double num)
@@ -48,6 +46,11 @@ void Matrix::SetMartrixElement(unsigned int row, unsigned int col, double num)
 		return;
 	}
 	matrix_buffer[row * this->col + col] = num;
+}
+
+void Matrix::Scale(double scale)
+{
+	cblas_dscal(row * col, scale, this->matrix_buffer, 1);
 }
 
 Matrix Matrix::col_stack(const Matrix& m) const
@@ -97,7 +100,7 @@ void Matrix::operator=(const Matrix& m)
 	memcpy(this->matrix_buffer, m.matrix_buffer, row * col * sizeof(double));
 }
 
-Matrix Matrix::operator+(const Matrix& m)
+Matrix Matrix::operator+(const Matrix& m) const
 {
 	if (this->row != m.row or this->col != m.col) {
 		printf("'+' Error! Different row or col\n");
@@ -108,7 +111,7 @@ Matrix Matrix::operator+(const Matrix& m)
 	return temp;
 }
 
-Matrix Matrix::operator-(const Matrix& m)
+Matrix Matrix::operator-(const Matrix& m) const
 {
 	if (this->row != m.row or this->col != m.col) {
 		printf("'-' Error! Different row or col\n");
@@ -119,7 +122,7 @@ Matrix Matrix::operator-(const Matrix& m)
 	return temp;
 }
 
-Matrix Matrix::operator*(const Matrix& m)
+Matrix Matrix::operator*(const Matrix& m) const
 {
 	if (this->col != m.row) {
 		printf("'*' Error! Incorrect row or col\n");
@@ -132,17 +135,39 @@ Matrix Matrix::operator*(const Matrix& m)
 	return temp;
 }
 
-Matrix Matrix::operator*(const double& scale)
+Matrix Matrix::operator*(const double& scale) const
 {
 	Matrix temp(*this);
 	cblas_dscal(row * col, scale, temp.matrix_buffer, 1);
 	return temp;
 }
 
+void Matrix::operator+=(const Matrix& m)
+{
+	if (this->row != m.row or this->col != m.col) {
+		printf("'+=' Error! Different row or col\n");
+		return;
+	}
+	cblas_daxpby(row * col, 1, m.matrix_buffer, 1, 1, this->matrix_buffer, 1);
+}
+
+void Matrix::operator-=(const Matrix& m)
+{
+	if (this->row != m.row or this->col != m.col) {
+		printf("'-=' Error! Different row or col\n");
+		return;
+	}
+	cblas_daxpby(row * col, 1, m.matrix_buffer, 1, -1, this->matrix_buffer, 1);
+}
+
+void Matrix::operator*=(const double& scale)
+{
+	cblas_dscal(row * col, scale, this->matrix_buffer, 1);
+}
+
 Matrix operator*(const double& scale, const Matrix& m)
 {
-	Matrix temp(m);
-	return temp * scale;
+	return m * scale;
 }
 
 Matrix Matrix::Transpose() const
