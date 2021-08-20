@@ -58,7 +58,7 @@ private:
 class RBend :public Bend {
 public:
 private:
-	virtual void CalculateTransferMatrix();
+	virtual void CalculateTransferMatrix();// not perfect
 };
 
 class Quad :public Accelerator_Element {

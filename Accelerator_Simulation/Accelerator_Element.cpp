@@ -121,6 +121,17 @@ void Quad::CalculateTransferMatrix()
 		};
 		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
 	}
+	else if (k_Mquad == 0) {
+		double buffer[36] = {
+		1.0,	length,	0,		0,		0,		0,
+		0,		1.0,	0,		0,		0,		0,
+		0,		0,		1.,		length,	0,		0,
+		0,		0,		0,		1.0,	0,		0,
+		0,		0,		0,		0,		1,		length / gamma / gamma,
+		0,		0,		0,		0,		0,		1
+		};
+		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+	}
 	else {
 		double K = sqrt(k_Mquad);
 		double temp = K * length;
