@@ -31,7 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseInteloneMKL>Sequential</UseInteloneMKL>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -46,7 +46,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseInteloneMKL>Sequential</UseInteloneMKL>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="Accelerator_Element.cpp" />
     <ClCompile Include="Beam.cpp" />
+    <ClCompile Include="Lattice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Particle.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Accelerator_Element.h" />
     <ClInclude Include="Beam.h" />
     <ClInclude Include="cpp_Reflex.h" />
+    <ClInclude Include="Lattice.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PhysicalParameter.h" />
