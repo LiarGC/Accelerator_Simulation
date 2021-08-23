@@ -7,7 +7,7 @@ class Particle
 {
 public:
 	Particle();
-	Particle(double x, double y);
+	void SetPosition(double x = 0, double y = 0, double s = 0);
 	void SetEk(double Ek);
 	void SetE_totall(double E0);
 	void SetMomentum(double P);
@@ -53,7 +53,6 @@ class Electron :public Particle
 {
 public:
 	Electron();
-	Electron(double x, double y);
 private:
 	virtual void SetRestMass();
 	virtual void SetInitialCharge();
@@ -64,7 +63,6 @@ class Proton :public Particle
 {
 public:
 	Proton();
-	Proton(double x, double y);
 private:
 	virtual void SetRestMass();
 	virtual void SetInitialCharge();

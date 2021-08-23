@@ -7,10 +7,14 @@ Particle::Particle()
 	x = 0; y = 0; s = 0;
 }
 
-Particle::Particle(double x,double y)
+void Particle::SetPosition(double x, double y, double s)
 {
-	this->x = x; this->y = y;
+	this->x = x;
+	this->y = y;
+	this->s = s;
 }
+
+
 
 void Particle::SetEk(double Ek)
 {
@@ -127,12 +131,6 @@ Electron::Electron()
 	SubInitial();
 }
 
-Electron::Electron(double x, double y)
-	:Particle(x, y)
-{
-	SubInitial();
-}
-
 void Electron::SetRestMass()
 {
 	rest_mass = 9.10956E-31;
@@ -146,12 +144,6 @@ void Electron::SetInitialCharge()
 REGISTER_cpp(Electron);
 
 Proton::Proton()
-{
-	SubInitial();
-}
-
-Proton::Proton(double x, double y)
-	:Particle(x, y)
 {
 	SubInitial();
 }
