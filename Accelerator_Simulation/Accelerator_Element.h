@@ -7,20 +7,22 @@ class Accelerator_Element
 public:
 	void SetLength(double length);
 	void SetB(double B);
-	void Set_g(double g);
-	void SetBeam(Beam& beam);
+	void SetGradient(double Gradient);
 
 	Matrix& GetTransferMatrix();
+	virtual double GetTheta();
+
+	static void SetBeam(Beam& beam);
 protected:
 	Matrix TransferMatrix = Matrix(6, 6);
 	virtual void CalculateThroughB() = 0;
-	virtual void CalculateThroughg() = 0;
+	virtual void CalculateThroughGradient() = 0;
 
 	double length;//m
 	double B;//T
-	double g;// B' :T/m
-	
-	Beam* p_beam;
+	double Gradient;// B' :T/m
+
+	static Beam* p_beam;
 private:
 	virtual void CalculateTransferMatrix() = 0;
 };
@@ -31,13 +33,14 @@ public:
 private:
 	virtual void CalculateTransferMatrix();
 	virtual void CalculateThroughB();
-	virtual void CalculateThroughg();
+	virtual void CalculateThroughGradient();
 };
 
 class Bend:public Accelerator_Element
 {
 public:
 	void SetTheta(double Theta);
+	virtual double GetTheta();
 
 protected:
 	double Theta;	//rad
@@ -46,7 +49,7 @@ protected:
 
 private:
 	virtual void CalculateThroughB();
-	virtual void CalculateThroughg();
+	virtual void CalculateThroughGradient();
 };
 
 class SBend :public Bend {
@@ -63,12 +66,21 @@ private:
 
 class Quad :public Accelerator_Element {
 public:
-	void Setk_Mquad(double k_Mquad);
+	void Setk_Mquad(double NormalizedGradient);
 
 private:
 	virtual void CalculateTransferMatrix();
 	virtual void CalculateThroughB();
-	virtual void CalculateThroughg();
+	virtual void CalculateThroughGradient();
 
-	double k_Mquad;// -g/(B_rho):m^-2
+	double NormalizedGradient;// -g/(B_rho):m^-2
+};
+
+class Solenoid :public Accelerator_Element {
+public:
+
+private:
+	virtual void CalculateTransferMatrix();
+	virtual void CalculateThroughB();
+	virtual void CalculateThroughGradient();
 };

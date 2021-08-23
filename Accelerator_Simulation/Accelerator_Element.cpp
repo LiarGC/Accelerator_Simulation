@@ -1,6 +1,8 @@
 #include "Accelerator_Element.h"
 #include "PhysicalParameter.h"
 
+Beam* Accelerator_Element::p_beam = NULL;
+
 void Drift::CalculateTransferMatrix()
 {
 	double gamma = this->p_beam->p_IdealParticle->GetGamma();
@@ -19,7 +21,7 @@ void Drift::CalculateThroughB()
 {
 }
 
-void Drift::CalculateThroughg()
+void Drift::CalculateThroughGradient()
 {
 }
 
@@ -30,7 +32,7 @@ void Accelerator_Element::SetLength(double length)
 
 void Accelerator_Element::SetBeam(Beam& beam)
 {
-	this->p_beam = &beam;
+	p_beam = &beam;
 }
 
 Matrix& Accelerator_Element::GetTransferMatrix()
@@ -39,12 +41,22 @@ Matrix& Accelerator_Element::GetTransferMatrix()
 	return TransferMatrix;
 }
 
+double Accelerator_Element::GetTheta()
+{
+	return 0.0;
+}
+
 void Bend::SetTheta(double Theta)
 {
 	this->Theta = Theta;
 	this->rho = this->length / Theta;
 	this->B = - p_beam->p_IdealParticle->GetB_rho() / this->rho;
-	this->n = - rho / B * g;
+	this->n = - rho / B * Gradient;
+}
+
+double Bend::GetTheta()
+{
+	return Theta;
 }
 
 void Accelerator_Element::SetB(double B)
@@ -53,10 +65,10 @@ void Accelerator_Element::SetB(double B)
 	CalculateThroughB();
 }
 
-void Accelerator_Element::Set_g(double g)
+void Accelerator_Element::SetGradient(double Gradient)
 {
-	this->g = g;
-	CalculateThroughg();
+	this->Gradient = Gradient;
+	CalculateThroughGradient();
 }
 
 void SBend::CalculateTransferMatrix()
@@ -95,21 +107,21 @@ void Bend::CalculateThroughB()
 	SetTheta(- B * length / p_beam->p_IdealParticle->GetB_rho());
 }
 
-void Bend::CalculateThroughg()
+void Bend::CalculateThroughGradient()
 {
-	this->n = - rho / B * g;
+	this->n = - rho / B * Gradient;
 }
 
-void Quad::Setk_Mquad(double k_Mquad)
+void Quad::Setk_Mquad(double NormalizedGradient)
 {
-	this->k_Mquad = k_Mquad;
+	this->NormalizedGradient = NormalizedGradient;
 }
 
 void Quad::CalculateTransferMatrix()
 {
 	double gamma = this->p_beam->p_IdealParticle->GetGamma();
-	if (k_Mquad < 0) {
-		double K = sqrt(-k_Mquad);
+	if (NormalizedGradient < 0) {
+		double K = sqrt(-NormalizedGradient);
 		double temp = K * length;
 		double buffer[36] = {
 			cos(temp),		sin(temp)/K,	0,				0,				0,		0,
@@ -121,7 +133,7 @@ void Quad::CalculateTransferMatrix()
 		};
 		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
 	}
-	else if (k_Mquad == 0) {
+	else if (NormalizedGradient == 0) {
 		double buffer[36] = {
 		1.0,	length,	0,		0,		0,		0,
 		0,		1.0,	0,		0,		0,		0,
@@ -133,7 +145,7 @@ void Quad::CalculateTransferMatrix()
 		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
 	}
 	else {
-		double K = sqrt(k_Mquad);
+		double K = sqrt(NormalizedGradient);
 		double temp = K * length;
 		double buffer[36] = {
 			cosh(temp),		sinh(temp) / K,	0,				0,				0,		0,
@@ -151,9 +163,9 @@ void Quad::CalculateThroughB()
 {
 }
 
-void Quad::CalculateThroughg()
+void Quad::CalculateThroughGradient()
 {
-	k_Mquad = g / p_beam->p_IdealParticle->GetB_rho();
+	NormalizedGradient = Gradient / p_beam->p_IdealParticle->GetB_rho();
 }
 
 void RBend::CalculateTransferMatrix()
@@ -198,4 +210,30 @@ void RBend::CalculateTransferMatrix()
 	};
 	temp_Deflection.InputMatrixBuffer(buffer2, sizeof(buffer2));
 	TransferMatrix = temp_Deflection * temp_SBend * temp_Deflection;
+}
+
+void Solenoid::CalculateTransferMatrix()
+{
+	double B_rho = p_beam->p_IdealParticle->GetB_rho();
+	double gamma = p_beam->p_IdealParticle->GetGamma();
+	double K = B / B_rho;
+	double C = cos(K * length);
+	double S = sin(K * length);
+	double buffer[36] = {
+			0.5 * (1 + C),		S / K,			0.5 * S,			(1 - C) / K,	0,		0,
+			-0.25 * K * S,		0.5 * (1 + C),	0.25 * K * (C - 1),	0.5 * S,		0,		0,
+			-0.5 * S,			(C - 1) / K,	0.5 * (1 + C),		S / K,			0,		0,
+			0.25 * K * (1 - C),	-0.5 * S,		-0.25 * K * S,		0.5 * (1 + C),	0,		0,
+			0,					0,				0,					0,				1,		length / gamma / gamma,
+			0,					0,				0,					0,				0,		1
+	};
+	TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+}
+
+void Solenoid::CalculateThroughB()
+{
+}
+
+void Solenoid::CalculateThroughGradient()
+{
 }
