@@ -1,5 +1,4 @@
 #pragma once
-#include "mkl.h"
 
 using namespace std;
 
