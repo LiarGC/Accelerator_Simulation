@@ -112,50 +112,119 @@ void Bend::CalculateThroughGradient()
 	this->n = - rho / B * Gradient;
 }
 
-void Quad::Setk_Mquad(double NormalizedGradient)
+void Quad::SetNormalizedGradient(double NormalizedGradient)
 {
 	this->NormalizedGradient = NormalizedGradient;
+}
+
+void Quad::SetRotation(double Rotation)
+{
+	this->Rotation = Rotation;
 }
 
 void Quad::CalculateTransferMatrix()
 {
 	double gamma = this->p_beam->p_IdealParticle->GetGamma();
-	if (NormalizedGradient < 0) {
-		double K = sqrt(-NormalizedGradient);
-		double temp = K * length;
-		double buffer[36] = {
-			cos(temp),		sin(temp)/K,	0,				0,				0,		0,
-			-K*sin(temp),	cos(temp),		0,				0,				0,		0,
-			0,				0,				cosh(temp),		sinh(temp)/K,	0,		0,
-			0,				0,				K*sinh(temp),	cosh(temp),		0,		0,
-			0,				0,				0,				0,				1,		length / gamma / gamma,
-			0,				0,				0,				0,				0,		1
-		};
-		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
-	}
-	else if (NormalizedGradient == 0) {
-		double buffer[36] = {
-		1.0,	length,	0,		0,		0,		0,
-		0,		1.0,	0,		0,		0,		0,
-		0,		0,		1.,		length,	0,		0,
-		0,		0,		0,		1.0,	0,		0,
-		0,		0,		0,		0,		1,		length / gamma / gamma,
-		0,		0,		0,		0,		0,		1
-		};
-		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+	if (Rotation == 0) {
+		if (NormalizedGradient < 0) {
+			double K = sqrt(-NormalizedGradient);
+			double temp = K * length;
+			double buffer[36] = {
+				cos(temp),		sin(temp) / K,	0,				0,				0,		0,
+				-K * sin(temp),	cos(temp),		0,				0,				0,		0,
+				0,				0,				cosh(temp),		sinh(temp) / K,	0,		0,
+				0,				0,				K * sinh(temp),	cosh(temp),		0,		0,
+				0,				0,				0,				0,				1,		length / gamma / gamma,
+				0,				0,				0,				0,				0,		1
+			};
+		}
+		else if (NormalizedGradient == 0) {
+			double buffer[36] = {
+			1.0,	length,	0,		0,		0,		0,
+			0,		1.0,	0,		0,		0,		0,
+			0,		0,		1.,		length,	0,		0,
+			0,		0,		0,		1.0,	0,		0,
+			0,		0,		0,		0,		1,		length / gamma / gamma,
+			0,		0,		0,		0,		0,		1
+			};
+			TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+		}
+		else {
+			double K = sqrt(NormalizedGradient);
+			double temp = K * length;
+			double buffer[36] = {
+				cosh(temp),		sinh(temp) / K,	0,				0,				0,		0,
+				K * sinh(temp),	cosh(temp),		0,				0,				0,		0,
+				0,				0,				cos(temp),		sin(temp) / K,	0,		0,
+				0,				0,				-K * sin(temp),	cos(temp),		0,		0,
+				0,				0,				0,				0,				1,		length / gamma / gamma,
+				0,				0,				0,				0,				0,		1
+			};
+			TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+		}
 	}
 	else {
-		double K = sqrt(NormalizedGradient);
-		double temp = K * length;
-		double buffer[36] = {
-			cosh(temp),		sinh(temp) / K,	0,				0,				0,		0,
-			K * sinh(temp),	cosh(temp),		0,				0,				0,		0,
-			0,				0,				cos(temp),		sin(temp) / K,	0,		0,
-			0,				0,				-K * sin(temp),	cos(temp),		0,		0,
-			0,				0,				0,				0,				1,		length / gamma / gamma,
-			0,				0,				0,				0,				0,		1
+		Matrix tempMatrix1(6, 6);
+		Matrix tempMatrix2(6, 6);
+		Matrix tempMatrix3(6, 6);
+		double cosR = cos(Rotation), sinR = sin(Rotation);
+		double buffer1[36] = {
+			cosR,	0,		-sinR,	0,		0,	0,
+			0,		cosR,	0,		-sinR,	0,	0,
+			sinR,	0,		cosR,	0,		0,	0,
+			0,		sinR,	0,		cosR,	0,	0,
+			0,		0,		0,		0,		1,	0,
+			0,		0,		0,		0,		0,	1
 		};
-		TransferMatrix.InputMatrixBuffer(buffer, sizeof(buffer));
+		tempMatrix1.InputMatrixBuffer(buffer1, sizeof(buffer1));
+		double buffer2[36] = {
+			cosR,	0,		sinR,	0,		0,	0,
+			0,		cosR,	0,		sinR,	0,	0,
+			-sinR,	0,		cosR,	0,		0,	0,
+			0,		-sinR,	0,		cosR,	0,	0,
+			0,		0,		0,		0,		1,	0,
+			0,		0,		0,		0,		0,	1
+		};
+		tempMatrix2.InputMatrixBuffer(buffer2, sizeof(buffer2));
+
+		if (NormalizedGradient < 0) {
+			double K = sqrt(-NormalizedGradient);
+			double temp = K * length;
+			double buffer[36] = {
+				cos(temp),		sin(temp) / K,	0,				0,				0,		0,
+				-K * sin(temp),	cos(temp),		0,				0,				0,		0,
+				0,				0,				cosh(temp),		sinh(temp) / K,	0,		0,
+				0,				0,				K * sinh(temp),	cosh(temp),		0,		0,
+				0,				0,				0,				0,				1,		length / gamma / gamma,
+				0,				0,				0,				0,				0,		1
+			};
+			tempMatrix3.InputMatrixBuffer(buffer, sizeof(buffer));
+		}
+		else if (NormalizedGradient == 0) {
+			double buffer[36] = {
+			1.0,	length,	0,		0,		0,		0,
+			0,		1.0,	0,		0,		0,		0,
+			0,		0,		1.,		length,	0,		0,
+			0,		0,		0,		1.0,	0,		0,
+			0,		0,		0,		0,		1,		length / gamma / gamma,
+			0,		0,		0,		0,		0,		1
+			};
+			tempMatrix3.InputMatrixBuffer(buffer, sizeof(buffer));
+		}
+		else {
+			double K = sqrt(NormalizedGradient);
+			double temp = K * length;
+			double buffer[36] = {
+				cosh(temp),		sinh(temp) / K,	0,				0,				0,		0,
+				K * sinh(temp),	cosh(temp),		0,				0,				0,		0,
+				0,				0,				cos(temp),		sin(temp) / K,	0,		0,
+				0,				0,				-K * sin(temp),	cos(temp),		0,		0,
+				0,				0,				0,				0,				1,		length / gamma / gamma,
+				0,				0,				0,				0,				0,		1
+			};
+			tempMatrix3.InputMatrixBuffer(buffer, sizeof(buffer));
+		}
+		TransferMatrix = tempMatrix1 * tempMatrix3 * tempMatrix2;
 	}
 }
 

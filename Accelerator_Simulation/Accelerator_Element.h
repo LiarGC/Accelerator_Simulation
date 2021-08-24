@@ -66,7 +66,8 @@ private:
 
 class Quad :public Accelerator_Element {
 public:
-	void Setk_Mquad(double NormalizedGradient);
+	void SetNormalizedGradient(double NormalizedGradient);
+	void SetRotation(double Rotation);
 
 private:
 	virtual void CalculateTransferMatrix();
@@ -74,6 +75,7 @@ private:
 	virtual void CalculateThroughGradient();
 
 	double NormalizedGradient;// -g/(B_rho):m^-2
+	double Rotation = 0;// anticlockwise
 };
 
 class Solenoid :public Accelerator_Element {
